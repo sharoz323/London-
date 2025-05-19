@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>London Dairy App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .active-icon {
+            color: #3b82f6; /* Tailwind's blue-500 */
+        }
+    </style>
+    <script>
+        // Dummy data for plans (replace with actual data source)
+        const plansData = [
+            {
+                id: 'plan-a',
+                name: 'London Dairy A',
+                price: 600,
+                income: 90,
+                cycle: 120,
+                total: 10800,
+                image: 'https://images.unsplash.com/photo-1563720363961-eb7f4717b3b7?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Default image
+            },
+            {
+                id: 'plan-b',
+                name: 'London Dairy B',
+                price: 800,
+                income: 120,
+                cycle: 120,
+                total: 14400,
+                image: 'https://images.unsplash.com/photo-1563720363961-eb7f4717b3b7?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Default image
+            },
+            {
+                id: 'plan-c',
+                name: 'London Dairy C',
+                price: 1000,
+                income: 150,
+                cycle: 120,
+                total: 18000,
+                image: 'https://images.unsplash.com/photo-1563720363961-eb7f4717b3b7?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Default image
+            },
+            {
+                id: 'plan-d',
+                name: 'London Dairy D',
+                price: 1200,
+                income: 180,
+                cycle: 120,
+                total: 21600,
+                image: 'https://images.unsplash.com/photo-1563720363961-eb7f4717b3b7?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Default image
+            }
+        ];
+
+        let userBankDetails = 159622237639 // Store user's bank account details
+        let userInvites = 0; // Track number of successful invites
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPlans();
+            setupBottomNavigation();
+            //check if bank details are already stored
+            const storedBankDetails = localStorage.getItem('userBankDetails');
+            if (storedBankDetails) {
+                userBankDetails = JSON.parse(storedBankDetails);
+            }
+            //check for stored invites
+            const storedInvites = localStorage.getItem('userInvites');
+            if (storedInvites) {
+                userInvites = parseInt(storedInvites);
+            }
+        });
+
+        function renderPlans() {
+            const plansSection = document.getElementById('plans-section');
+            plansSection.innerHTML = ''; // Clear previous content
+
+            plansData.forEach(plan => {
+                const planHTML = `
+                    <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold text-center mb-4">${plan.name}</h2>
+                        <div class="flex flex-col md:flex-row items-center gap-4">
+                            <div class="md:w-1/2 flex justify-center">
+                                <img src="${plan.image}" alt="${plan.name}" id="plan-image-${plan.id}" class="w-48 h-48 rounded-lg object-cover" />
+                            </div>
+                            <div class="md:w-1/2 space-y-2">
+                                <h3 class="text-lg font-semibold text-blue-600">${plan.name}</h3>
+                                <p><span class="font-semibold">Price:</span> ₹${plan.price}</p>
+                                <p><span class="font-semibold">Income:</span> ₹${plan.income}</p>
+                                <p><span class="font-semibold">Cycle:</span> ${plan.cycle} days</p>
+                                <p><span class="font-semibold">Total:</span> ₹${plan.total}</p>
+                                 <div class="mb-4">
+                                    <label for="image-upload-${plan.id}" class="inline-flex items-center justify-center px-5 py-3 bg-blue-600 text-white font-medium rounded-md shadow-md cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors">
+                                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-11-5l-4 4m0 0l4 4m-4-4h10"></path></svg>
+                                        <span>Upload Image</span>
+                                        <input type="file" id="image-upload-${plan.id}" accept="image/*" class="hidden" onchange="handleImageUpload(event, '${plan.id}')">
+                                    </label>
+                                </div>
+                                <div class="flex justify-around gap-2 mt-4">
+                                    <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full w-full sm:w-auto buy-button" data-plan-id="${plan.id}">Buy Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                `;
+                plansSection.innerHTML += planHTML;
+            });
+
+            // Attach event listeners to the "Buy Now" buttons after they are rendered
+            const buyButtons = document.querySelectorAll('.buy-button');
+            buyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const planId = button.dataset.planId;
+                    // Redirect to recharge with UPI preselected.
+                    displayRechargeSection(planId); // Pass planId
+                });
+            });
+        }
+
+        function setupBottomNavigation() {
+            const navItems = document.querySelectorAll('.bottom-nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all items
+                    navItems.forEach(navItem => navItem.querySelector('img').classList.remove('active-icon'));
+                    navItems.forEach(navItem => navItem.querySelector('span').classList.remove('text-blue-500'));
+
+                    // Add active class to the clicked item
+                    item.querySelector('img').classList.add('active-icon');
+                    item.querySelector('span').classList.add('text-blue-500');
+
+                    // Handle navigation logic here
+                    const target = item.dataset.target;
+                    console.log(`Navigating to ${target}`);
+                    if (target === 'home') {
+                        renderPlans();
+                    } else if (target === 'recharge') {
+                        displayRechargeSection();
+                    } else if (target === 'channel') {
+                        displayChannelSection();
+                    } else if (target === 'withdrawal') {
+                        displayWithdrawalSection();
+                    } else if (target === 'online') {
+                        displayOnlineSection();
+                    }
+                    else if (target === 'team') {
+                        displayTeamSection();
+                    } else if (target === 'invite') {
+                        displayInviteSection();
+                    }
+                    else if (target === 'download') {
+                        displayDownloadSection();
+                    }
+                    else if (target === 'my') {
+                        displayMySection();
+                    }
+                    // You would replace this console.log with your actual navigation logic
+                    // For example, you might use window.location.href to navigate to a different page,
+                    // or you might use JavaScript to show/hide different sections of the current page.
+                });
+            });
+            // Set 'Home' as active by default
+            document.querySelector('[data-target="home"]').querySelector('img').classList.add('active-icon');
+            document.querySelector('[data-target="home"]').querySelector('span').classList.add('text-blue-500');
+        }
+
+        function displayRechargeSection(selectedPlanId = null) { // Added selectedPlanId
+            const plansSection = document.getElementById('plans-section');
+            let initialAmount = '';
+            if (selectedPlanId) {
+                const selectedPlan = plansData.find(plan => plan.id === selectedPlanId);
+                if (selectedPlan) {
+                    initialAmount = selectedPlan.price;
+                }
+            }
+            plansSection.innerHTML = `
+                <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center mb-4">Recharge</h2>
+                    <p class="text-center">Recharge your account using your preferred payment method.</p>
+                    <div class="mt-4 space-y-4">
+                        <input type="number" id="recharge-amount" placeholder="Enter amount" value="${initialAmount}" class="w-full p-2 border border-gray-300 rounded-md">
+                        <select id="recharge-method" class="w-full p-2 border border-gray-300 rounded-md">
+                            <option value="upi" selected>UPI</option>
+                            <option value="netbanking">Net Banking</option>
+                            <option value="wallet">Wallet</option>
+                        </select>
+                        <button onclick="handleRecharge()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-full">Recharge Now</button>
+                    </div>
+                    <div id="recharge-message" class="mt-4 text-center text-red-500"></div>
+                </section>
+            `;
+        }
+
+        function displayChannelSection() {
+            const plansSection = document.getElementById('plans-section');
+            plansSection.innerHTML = `
+                <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center mb-4">Channel</h2>
+                    <p class="text-center">Channel information will be displayed here.</p>
+                </section>
+            `;
+        }
+
+        function displayWithdrawalSection() {
+            const plansSection = document.getElementById('plans-section');
+            if (!userBankDetails) {
+                plansSection.innerHTML = `
+                    <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold text-center mb-4">Withdrawal</h2>
+                        <p class="text-center text-red-500">Please add your bank account details before withdrawing.</p>
+                        <div class="mt-4">
+                            <button onclick="displayAddBankDetailsForm()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-full">Add Bank Details</button>
+                        </div>
+                    </section>
+                `;
+            } else {
+                plansSection.innerHTML = `
+                    <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold text-center mb-4">Withdrawal</h2>
+                        <p class="text-center">Withdraw funds from your account.</p>
+                        <div class="mt-4">
+                            <p class="text-center">Bank Name: ${userBankDetails.bankName}</p>
+                            <p class="text-center">Account Number: ${userBankDetails.accountNumber}</p>
+                            <p class="text-center">IFSC Code: ${userBankDetails.ifscCode}</p>
+                            <input type="number" id="withdrawal-amount" placeholder="Enter amount" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+                            <button onclick="handleWithdrawal()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full w-full">Withdraw Now</button>
+                        </div>
+                         <div id="withdrawal-message" class="mt-4 text-center text-red-500"></div>
+                    </section>
+                `;
+            }
+        }
+
+        function displayOnlineSection() {
+            const plansSection = document.getElementById('plans-section');
+            plansSection.innerHTML = `
+                <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center mb-4">Online Support</h2>
+                    <p class="text-center">Contact our customer support for assistance.</p>
+                    <div class="mt-4">
+                        <p class="text-center">Email: support@londondairy.com</p>
+                        <p class="text-center">Phone: +91 1234567890</p>
+                    </div>
+                </section>
+            `;
+        }
+
+        function displayTeamSection() {
+            const plansSection = document.getElementById('plans-section');
+            plansSection.innerHTML = `
+                <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center mb-4">My Team</h2>
+                    <p class = "text-center">Your team details will be displayed here.</p>
+                    <div class="mt-4">
+                        <p class="text-center">Total Team Members: 0</p>
+                        <p class="text-center">Total Team Income: ₹0</p>
+                    </div>
+                </section>
+            `;
+        }
+
+        function displayInviteSection() {
+            const plansSection = document.getElementById('plans-section');
+            plansSection.innerHTML = `
+                <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center mb-4">Invite Friends</h2>
+                    <p class="text-center">Share your invitation link to earn rewards!</p>
+                    <div class="mt-4">
+                        <p class="text-center">Your Invitation Link: <a href="#">https://www.londondairy.com/invite/12345</a></p>
+                        <p class="text-center text-green-600">For every friend who successfully joins and purchases a plan, you earn ₹500!</p>
+                        <p class="text-center">Number of Successful Invites: <span id="invite-count">${userInvites}</span></p>
+                        <button onclick="handleInvite()" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-full w-full mt-4">Invite Now</button>
+                    </div>
+                </section>
+            `;
+        }
+
+        function displayDownloadSection() {
+            const plansSection = document.getElementById('plans-section');
+            plansSection.innerHTML = `
+                <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center mb-4">Download App</h2>
+                    <p class = "text-center">Download our app for a better experience.</p>
+                    <div class="mt-4">
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-full mb-2">Download for Android</button>
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-full">Download for iOS</button>
+                    </div>
+                </section>
+            `;
+        }
+
+        function displayMySection() {
+            const plansSection = document.getElementById('plans-section');
+            plansSection.innerHTML = `
+                <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center mb-4">My Profile</h2>
+                    <div class="mt-4 space-y-2">
+                        <p class="text-center">Name: John Doe</p>
+                        <p class="text-center">Email: john.doe@example.com</p>
+                        <button onclick="displayAddBankDetailsForm()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-full">Add/Edit Bank Details</button>
+                    </div>
+                </section>
+            `;
+        }
+
+        function displayAddBankDetailsForm() {
+            const plansSection = document.getElementById('plans-section');
+            plansSection.innerHTML = `
+                <section class="bg-white py-6 px-4 mt-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center mb-4">Add Bank Details</h2>
+                    <div class="mt-4 space-y-4">
+                        <input type="text" id="bank-name" placeholder="Bank Name" class="w-full p-2 border border-gray-300 rounded-md">
+                        <input type="text" id="account-number" placeholder="Account Number" class="w-full p-2 border border-gray-300 rounded-md">
+                        <input type="text" id="ifsc-code" placeholder="IFSC Code" class="w-full p-2 border border-gray-300 rounded-md">
+                        <button onclick="saveBankDetails()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full w-full">Save Details</button>
+                    </div>
+                </section>
+            `;
+            //prefill the form if user details are available
+            if (userBankDetails) {
+                document.getElementById('bank-name').value = userBankDetails.bankName;
+                document.getElementById('account-number').value = userBankDetails.accountNumber;
+                document.getElementById('ifsc-code').value = userBankDetails.ifscCode;
+            }
+        }
+
+        function saveBankDetails() {
+            const bankName = document.getElementById('bank-name').value;
+            const accountNumber = document.getElementById('account-number').value;
+            const ifscCode = document.getElementById('ifsc-code').value;
+
+            if (bankName && accountNumber && ifscCode) {
+                userBankDetails = {
+                    bankName: bankName,
+                    accountNumber: accountNumber,
+                    ifscCode: ifscCode,
+                };
+                //store the data
+                localStorage.setItem('userBankDetails', JSON.stringify(userBankDetails));
+                alert('Bank details saved successfully!');
+                displayWithdrawalSection(); // Refresh withdrawal section to show updated info
+            } else {
+                alert('Please fill in all bank details.');
+            }
+        }
+
+        function handleWithdrawal() {
+            const amount = document.getElementById('withdrawal-amount').value;
+            const withdrawalMessage = document.getElementById('withdrawal-message');
+            if (amount && userBankDetails) {
+                //alert(`Withdrawing ₹${amount} to Account Number: ${userBankDetails.accountNumber}`);
+                //  Add  withdrawal logic here.
+                withdrawalMessage.textContent = `Withdrawing ₹${amount} to Account Number: ${userBankDetails.accountNumber}.  This is a simulation.`;
+                withdrawalMessage.style.color = "green";
+
+            } else if (!userBankDetails) {
+                alert('Please add your bank account details first.');
+                displayAddBankDetailsForm();
+            }
+            else {
+                withdrawalMessage.textContent = 'Please enter a valid withdrawal amount.';
+                withdrawalMessage.style.color = "red";
+            }
+        }
+
+        function handleRecharge() {
+            const amount = document.getElementById('recharge-amount').value;
+            const method = document.getElementById('recharge-method').value;
+            const rechargeMessage = document.getElementById('recharge-message');
+
+            if (amount && method) {
+                //alert(`Recharging ₹${amount} using ${method}`);
+                //  Add recharge logic here.
+                rechargeMessage.textContent = `Recharging ₹${amount} using ${method}.  This is a simulation.`;
+                rechargeMessage.style.color = "green";
+                if (method === 'upi') {
+                    // Simulate UPI transaction
+                    setTimeout(() => {
+                        alert(`₹${amount} paid successfully using UPI!`);
+                        // Redirect user to home page or a success page
+                        renderPlans(); // Or window.location.href = '/success';
+                    }, 2000); // Simulate 2-second delay
+                }
+                else{
+                    setTimeout(() => {
+                        alert(`₹${amount} paid successfully using ${method}!`);
+                        // Redirect user to home page or a success page
+                        renderPlans(); // Or window.location.href = '/success';
+                    }, 2000);
+                }
+
+            } else {
+                //alert('Please enter a valid recharge amount and select a method.');
+                rechargeMessage.textContent = 'Please enter a valid recharge amount and select a method.';
+                rechargeMessage.style.color = "red";
+            }
+        }
+
+        function handleImageUpload(event, planId) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const imageElement = document.getElementById(`plan-image-${planId}`);
+                imageElement.src = e.target.result;
+                // Also update the plansData array
+                const planIndex = plansData.findIndex(p => p.id === planId);
+                if (planIndex > -1) {
+                    plansData[planIndex].image = e.target.result;
+                }
+            }
+
+            reader.readAsDataURL(file);
+        }
+
+        function handleInvite() {
+            userInvites++;
+            localStorage.setItem('userInvites', userInvites.toString());
+            alert('Invitation sent!  You will receive ₹500 if your friend joins and purchases a plan.');
+            // Update the displayed invite count
+            document.getElementById('invite-count').textContent = userInvites;
+        }
+
+    </script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white py-4 flex justify-center items-center">
+        <h1 class="text-2xl font-semibold">London Dairy</h1>
+    </header>
+
+    <section class="bg-white py-4 grid grid-cols-4 gap-4 px-4 mt-4">
+        <div class="flex flex-col items-center bottom-nav-item" data-target="recharge">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/zap.svg" alt="Recharge" class="w-6 h-6  mb-1" />
+            <span class="text-sm">Recharge</span>
+        </div>
+        <div class="flex flex-col items-center bottom-nav-item" data-target="channel">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/radio.svg" alt="Channel" class="w-6 h-6  mb-1" />
+            <span class="text-sm">Channel</span>
+        </div>
+        <div class="flex flex-colitems-center bottom-nav-item" data-target="withdrawal">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/arrow-down-to-line.svg" alt="Withdrawal" class="w-6 h-6  mb-1" />
+            <span class="text-sm">Withdrawal</span>
+        </div>
+        <div class="flex flex-col items-center bottom-nav-item" data-target="online">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wifi.svg" alt="Online" class="w-6 h-6  mb-1" />
+            <span class="text-sm">Online</span>
+        </div>
+    </section>
+
+    <section id="plans-section" class="container mx-auto">
+        </section>
+
+    <section class="py-4 px-4 mt-4 text-center">
+        <p class="text-sm">Daily Income, Daily Withdrawal</p>
+    </section>
+
+    <footer class="bg-white py-4 grid grid-cols-5 gap-4 px-4 mt-4 fixed bottom-0 left-0 w-full">
+        <div class="flex flex-col items-center bottom-nav-item" data-target="home">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/home.svg" alt="Home" class="w-6 h-6  mb-1" />
+            <span class="text-sm">Home</span>
+        </div>
+        <div class="flex flex-col items-center bottom-nav-item" data-target="team">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/users.svg" alt="Team" class="w-6 h-6  mb-1" />
+            <span class="text-sm">Team</span>
+        </div>
+        <div class="flex flex-col items-center bottom-nav-item" data-target="invite">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail-open.svg" alt="Invite" class="w-6 h-6  mb-1" />
+            <span class="text-sm">Invite</span>
+        </div>
+        <div class="flex flex-col items-center bottom-nav-item" data-target="download">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/download-cloud.svg" alt="Download" class="w-6 h-6  mb-1" />
+            <span class="text-sm">Download</span>
+        </div>
+        <div class="flex flex-col items-center bottom-nav-item" data-target="my">
+            <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/user.svg" alt="My" class="w-6 h-6  mb-1" />
+            <span class="text-sm">My</span>
+        </div>
+    </footer>
+</body>
+  </html>
